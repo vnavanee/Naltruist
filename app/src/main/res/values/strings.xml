@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Naltruist</string>
+    <string name="welcome_msg">Welcome!</string>
+    <string name="contacts_permission_rationale">Need to sign in.</string>
+    <string name="invite_menu_label">Invite</string>
+    <string name="invitation_message">Join Naltruist and Save Lives</string>
+    <string name="invitation_cta">Naltruists Save Lives</string>
+    <string name="invitation_title">Naltruist Invite</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="sign_in_text">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="banner_ad_unit_id">Ads</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+
+
+</resources>

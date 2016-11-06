@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "339777737703",
+    "firebase_url": "https://naltruist-14a0f.firebaseio.com",
+    "project_id": "naltruist-14a0f",
+    "storage_bucket": "naltruist-14a0f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339777737703:android:85b7634d60b2df0e",
+        "android_client_info": {
+          "package_name": "com.naltruist.android.naltruist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339777737703-a04nkq002a3vhanrjmpfdpsl3v89eomd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.naltruist.android.naltruist",
+            "certificate_hash": "4AB949DB62637AEFC5A4A3F869A44E5F48243B82"
+          }
+        },
+        {
+          "client_id": "339777737703-vaa9vepv9gllomlhrste5de9lso1tr5k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK9-YAIEsPg4bfYAIzfq77kXeLZLSfkfg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339777737703-vaa9vepv9gllomlhrste5de9lso1tr5k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
