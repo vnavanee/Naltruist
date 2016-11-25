@@ -53,25 +53,27 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        public TextView messageTextView;
-        public TextView messengerTextView;
-        public CircleImageView messengerImageView;
 
-        public MessageViewHolder(View v) {
+
+    public static class RoomViewHolder extends RecyclerView.ViewHolder {
+        public TextView uidTextView;
+        public TextView messageTextView;
+
+
+        public RoomViewHolder(View v) {
             super(v);
             messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
-            messengerTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
-            messengerImageView = (CircleImageView) itemView.findViewById(R.id.messengerImageView);
+            uidTextView = (TextView) itemView.findViewById(R.id.messengerTextView);
+
         }
     }
-
     private static final String TAG = "MainActivity";
-    public static final String MESSAGES_CHILD = "messages";
+
     private static final int REQUEST_INVITE = 1;
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 100;
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
+    public static final String MESSAGES_CHILD = "helpmessages";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
@@ -79,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements
     private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private FirebaseRecyclerAdapter<NalMessage, MessageViewHolder> mFirebaseAdapter;
+    private FirebaseRecyclerAdapter<HelpRoom, RoomViewHolder> mroomFirebaseAdapter;
+
     private ProgressBar mProgressBar;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mFirebaseAuth;
@@ -90,10 +93,12 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private GoogleApiClient mGoogleApiClient;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mUsername = ANONYMOUS;
@@ -109,6 +114,9 @@ public class MainActivity extends AppCompatActivity implements
             return;
         } else {
             mUsername = mFirebaseUser.getDisplayName();
+            startActivity(new Intent(this, RoomListActivity.class));
+
+
 //            mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
         }
 
@@ -118,50 +126,52 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
+        //mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
 
+        //startActivity(new Intent(this, RoomListActivity.class));
+
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<NalMessage, MessageViewHolder>(
-                NalMessage.class,
+        /*mroomFirebaseAdapter = new FirebaseRecyclerAdapter<HelpRoom, RoomViewHolder>(
+                HelpRoom.class,
                 R.layout.message,
-                MessageViewHolder.class,
-                mFirebaseDatabaseReference.child(MESSAGES_CHILD)) {
+                RoomViewHolder.class,
+                mFirebaseDatabaseReference.child("helprooms")) {
 
             @Override
-            protected void populateViewHolder(MessageViewHolder viewHolder, NalMessage nalMessage, int position) {
+            protected void populateViewHolder(RoomViewHolder viewHolder, HelpRoom helpRoom, int position) {
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                viewHolder.messageTextView.setText(nalMessage.getText());
-                viewHolder.messengerTextView.setText(nalMessage.getName());
-                if (nalMessage.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,
-                            R.drawable.ic_account_circle_black_36dp));
-                } else {
-                    Glide.with(MainActivity.this)
-                            .load(nalMessage.getPhotoUrl())
-                            .into(viewHolder.messengerImageView);
-                }
+                viewHolder.uidTextView.setText(helpRoom.getHelprequestor());
+                viewHolder.messageTextView.setText(helpRoom.getFirstmessage());
+
+
+
             }
+
         };
 
-        mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+
+
+        mroomFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = mFirebaseAdapter.getItemCount();
+                int helpMessageCount = mroomFirebaseAdapter.getItemCount();
                 int lastVisiblePosition = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 // If the recycler view is initially being loaded or the user is at the bottom of the list, scroll
                 // to the bottom of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
+                        (positionStart >= (helpMessageCount - 1) && lastVisiblePosition == (positionStart - 1))) {
                     mMessageRecyclerView.scrollToPosition(positionStart);
                 }
             }
         });
 
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mMessageRecyclerView.setAdapter(mFirebaseAdapter);
+        mMessageRecyclerView.setAdapter(mroomFirebaseAdapter);
+
+*/
 
         // Initialize and request AdMob ad.
         mAdView = (AdView) findViewById(R.id.adView);
@@ -195,7 +205,8 @@ public class MainActivity extends AppCompatActivity implements
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mSharedPreferences
                 .getInt(NalPreferences.NAL_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT))});
-        mMessageEditText.addTextChangedListener(new TextWatcher() {
+
+      mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }

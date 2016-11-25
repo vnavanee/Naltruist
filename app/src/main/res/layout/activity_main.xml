@@ -36,13 +36,23 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/linearLayout">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/messageTextView"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/messengerTextView"/>
 
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/messageEditText"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:clickable="true"
+            />
 
         <Button
             android:layout_width="wrap_content"

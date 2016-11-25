@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -46,6 +47,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Created by Vivek on 10/24/2016.
@@ -60,6 +64,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     private static final int RC_GOOGLE_SIGN_IN = 9001;
     private static final int RC_FACEBOOK_SIGN_IN = 9002;
     private static final int REQUEST_LOCATION = 2;
+    private static final String FIRST_HELP_MESSAGE = "Need Overdose Help Immediately";
     private SignInButton mSignInButton;
     private Button mEmailSignInButton;
     private Button mGetHelpButton;
@@ -119,12 +124,13 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                         Toast.makeText(SignInActivity.this, "Welcome back " + naluser.getEmail(), Toast.LENGTH_SHORT).show();
 
                         // Go back to the main activity
-                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                        startActivity(new Intent(SignInActivity.this, RoomListActivity.class));
                         finish();
                     } else {
                         Toast.makeText(SignInActivity.this, "Welcome back Anonymous user. Sign up to be a Naltruist", Toast.LENGTH_SHORT).show();
 
-                        naluser.getToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                        createNewRoom(naluser.getUid(),FIRST_HELP_MESSAGE);
+                        /*naluser.getToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                             @Override
                             public void onComplete(@NonNull Task<GetTokenResult> task) {
                                 if (task.isSuccessful()) {
@@ -165,7 +171,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                                                     }
                                                 });
 
-                                            } else {
+                                  } else {
                                                 //connect user to message chat id of user. TODO get address in
                                                 //  TODO separate container to use address to find Naltruists
                                                 Toast.makeText(SignInActivity.this, "Can't find your location. Need your address", Toast.LENGTH_SHORT).show();
@@ -180,15 +186,10 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                                 }
                             }
 
-                        });
-
-
-
-
-
+                        }); */
 
                     // Go back to the main activity
-                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                        startActivity(new Intent(SignInActivity.this, RoomListActivity.class));
                         finish();
                     }
 
@@ -206,9 +207,29 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     }
 
 
-    FirebaseUser muser = FirebaseAuth.getInstance().getCurrentUser();
+
+    private void createNewRoom(String uid, String message) {
+        DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("helprooms");
+        HelpRoom newRoom = new HelpRoom(uid,message);
+        Map<String, Object> newRoomValues = newRoom.roomMap();
+        roomRef.push().setValue(newRoom);
 
 
+    }
+
+    private void updateRoom(String uid, String message) {
+        DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("helprooms");
+
+        String key = roomRef.child("helprooms").push().getKey();
+        HelpRoom newRoom = new HelpRoom(uid,message);
+        Map<String, Object> newRoomValues = newRoom.roomMap();
+
+        Map<String, Object> roomUpdates = new HashMap<>();
+        roomUpdates.put("/helprooms/" + key, newRoomValues);
+        roomUpdates.put("/user-helprooms/" + uid + "/" + key, newRoomValues);
+
+        roomRef.updateChildren(roomUpdates);
+    }
     @Override
     public void onStart() {
         mGoogleApiClient.connect();
@@ -303,7 +324,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                                     Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                                     Double mLatit = mLastLocation.getLatitude();
                                     Double mLongit = mLastLocation.getLongitude();
-                                    DatabaseReference geofireref = FirebaseDatabase.getInstance().getReference("https://naltruist-14a0f.firebaseio.com/geofire");
+                                    DatabaseReference geofireref = FirebaseDatabase.getInstance().getReference().child("geofire");
                                     GeoFire geoFire = new GeoFire(geofireref);
                                     geoFire.setLocation(idToken, new GeoLocation(mLatit,mLongit));
 
@@ -325,7 +346,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
             Toast.makeText(this, "Welcome " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
             // Go back to the main activity
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, RoomListActivity.class));
         }
     }
 
@@ -364,16 +385,18 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
         }
     }
 
-    private void getHelp() {
-
-
-
-
-
-
-    }
 
     private void call911() {
+
+    Intent dialint = new Intent(Intent.ACTION_DIAL);
+        dialint.setData(Uri.parse("tel: 9163808378" ));
+        if (dialint.resolveActivity(getPackageManager()) != null) {
+            startActivity(dialint);
+        }
+
+        }
+
+    private void getHelp() {
         mFirebaseAuth.signInAnonymously().addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -523,7 +546,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
                     Toast.makeText(SignInActivity.this, "Sign In Failed.",Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                    startActivity(new Intent(SignInActivity.this, RoomListActivity.class));
                     finish();
                 }
             }

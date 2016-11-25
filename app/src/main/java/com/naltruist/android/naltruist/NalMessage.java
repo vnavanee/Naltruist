@@ -5,8 +5,9 @@ package com.naltruist.android.naltruist;
  */
 
 public class NalMessage {
+
     private String id;
-    private String text;
+    public String text;
     private String name;
     private String photoUrl;
 
@@ -35,6 +36,8 @@ public class NalMessage {
     public String getPhotoUrl() {
         return photoUrl;
     }
+
+
 
     public void setId(String id) {
         this.id = id;

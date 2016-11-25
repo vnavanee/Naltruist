@@ -3,8 +3,8 @@
     <string name="welcome_msg">Welcome!</string>
     <string name="contacts_permission_rationale">Need to sign in.</string>
     <string name="invite_menu_label">Invite</string>
-    <string name="invitation_message">Join Naltruist and Save Lives</string>
-    <string name="invitation_cta">Naltruists Save Lives</string>
+    <string name="invitation_message">Join Naltruist</string>
+    <string name="invitation_cta">Naltruists</string>
     <string name="invitation_title">Naltruist Invite</string>
 
     <string name="action_settings">Settings</string>
@@ -13,6 +13,8 @@
     <string name="sign_out">Sign Out</string>
     <string name="banner_ad_unit_id">Ads</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="title_activity_room_list">Help Requests</string>
+    <string name="title_activity_chat">Conversations</string>
 
 
 </resources>

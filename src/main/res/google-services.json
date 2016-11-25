@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1068705105289",
+    "firebase_url": "https://naltruist.firebaseio.com",
+    "project_id": "naltruist",
+    "storage_bucket": "naltruist.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068705105289:android:78b3e813e4a0d1fe",
+        "android_client_info": {
+          "package_name": "com.naltruist.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1068705105289-0isdpa0qqkv642hghn9h5v5r43pcm2j8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqTaP7CDN4Oq2UWNHl_-e54GpFjQLxUtQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
