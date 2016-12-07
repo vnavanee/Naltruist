@@ -1,5 +1,7 @@
 package com.naltruist.android.naltruist;
 
+import android.location.Location;
+
 import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
@@ -12,7 +14,8 @@ import java.util.Map;
 public class HelpRoom {
 
     private String helprequestor;
-    private String firstmessage;
+    private String title;
+    private String location;
 
 
 
@@ -20,26 +23,35 @@ public class HelpRoom {
 
     }
 
-    public HelpRoom(String helprequestor, String firstmessage) {
+    public HelpRoom(String helprequestor, String title, String location) {
         this.helprequestor = helprequestor;
-        this.firstmessage=firstmessage;
-
+        this.title = title;
+        this.location = location;
 
     }
 
     public String getHelprequestor() {
         return helprequestor;
     }
-    public String getFirstmessage() {
-        return firstmessage;
-    }
 
-    public void setuid(String helprequestor) {
+    public void setHelprequestor(String helprequestor) {
         this.helprequestor = helprequestor;
     }
 
-    public void setMessage(String message) {
-        this.firstmessage = message;
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Exclude
@@ -47,7 +59,9 @@ public class HelpRoom {
         HashMap<String, Object> result = new HashMap<>();
 
         result.put("helprequestor", helprequestor);
-        result.put("firstmessage", firstmessage);
+        result.put("location", location);
+        result.put("title", title);
+
 
         return result;
     }

@@ -12,10 +12,15 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.util.Constants;
@@ -34,6 +39,8 @@ public class ChatActivity extends AppCompatActivity {
     public TextView messageTextView;
     public TextView messengerTextView;
     public CircleImageView messengerImageView;
+    public EditText mMessageEditText;
+    public Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private StaggeredGridLayoutManager mStagGridLayoutManager;
@@ -41,9 +48,12 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private String mUsername;
-     private SharedPreferences mSharedPreferences;
+    private String mPhotoUrl;
+    private FirebaseAnalytics mFirebaseAnalytics;
+    private SharedPreferences mSharedPreferences;
     public static final String MESSAGES_CHILD = "helpmessages";
     public static final String ANONYMOUS = "anonymous";
+    private static final String MESSAGE_SENT_EVENT = "message_sent";
     private FirebaseRecyclerAdapter<NalMessage, MessageViewHolder> mFirebaseAdapter;
 
     private DatabaseReference mFirebaseDatabaseReference;
@@ -52,6 +62,7 @@ public class ChatActivity extends AppCompatActivity {
         public TextView messageTextView;
         public TextView messengerTextView;
         public CircleImageView messengerImageView;
+
 
         public MessageViewHolder(View v) {
             super(v);
@@ -62,7 +73,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +80,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mUsername = ANONYMOUS;
+        //mUsername = mFirebaseUser.getDisplayName();
+        //mPhotoUrl = "";
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -79,9 +90,9 @@ public class ChatActivity extends AppCompatActivity {
         mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-      //mStagGridLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
+        //mStagGridLayoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
 
-
+        mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         if (mFirebaseUser == null) {
@@ -94,31 +105,67 @@ public class ChatActivity extends AppCompatActivity {
 
 //            mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
         }
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         Bundle extras = getIntent().getExtras();
-        String roomId = extras.getString("roomId");
-        Toast.makeText(this, "this is the "+roomId, Toast.LENGTH_SHORT).show();
+        final String roomId = extras.getString("roomId");
+        Toast.makeText(this, "this is the " + roomId, Toast.LENGTH_SHORT).show();
 
-            mFirebaseAdapter = new FirebaseRecyclerAdapter<NalMessage, MessageViewHolder>(
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<NalMessage, MessageViewHolder>(
 
-                    NalMessage.class, R.layout.message, MessageViewHolder.class, mFirebaseDatabaseReference.child(MESSAGES_CHILD + "/" + roomId)) {
+                NalMessage.class, R.layout.message, MessageViewHolder.class, mFirebaseDatabaseReference.child(MESSAGES_CHILD + "/" + roomId)) {
 
-                @Override
-                protected void populateViewHolder(MessageViewHolder viewHolder, NalMessage nalMessage, int position) {
-                    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+            @Override
+            protected void populateViewHolder(MessageViewHolder viewHolder, NalMessage nalMessage, int position) {
+                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
-                    viewHolder.messageTextView.setText(nalMessage.getText());
-                    viewHolder.messengerTextView.setText(nalMessage.getName());
-                    if (nalMessage.getPhotoUrl() == null) {
-                        viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(ChatActivity.this,
-                                R.drawable.ic_account_circle_black_36dp));
-                    } else {
-                        Glide.with(ChatActivity.this)
-                                .load(nalMessage.getPhotoUrl())
-                                .into(viewHolder.messengerImageView);
-                    }
+                viewHolder.messageTextView.setText(nalMessage.getText());
+                viewHolder.messengerTextView.setText(nalMessage.getName());
+                if (nalMessage.getPhotoUrl() == null) {
+                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(ChatActivity.this,
+                            R.drawable.ic_account_circle_black_36dp));
+                } else {
+                    Glide.with(ChatActivity.this)
+                            .load(nalMessage.getPhotoUrl())
+                            .into(viewHolder.messengerImageView);
                 }
-            };
+            }
+        };
 
+
+        mMessageEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.toString().trim().length() > 0) {
+                    mSendButton.setEnabled(true);
+                } else {
+                    mSendButton.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        mSendButton = (Button) findViewById(R.id.sendButton);
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mUsername == null) {
+                    mUsername = "Anonymous";
+                }
+
+                NalMessage nalMessage = new NalMessage(mMessageEditText.getText().toString(), mUsername,
+                        mPhotoUrl);
+                mFirebaseDatabaseReference.child(MESSAGES_CHILD + "/" + roomId).push().setValue(nalMessage);
+                mMessageEditText.setText("");
+                mFirebaseAnalytics.logEvent(MESSAGE_SENT_EVENT, null);
+            }
+        });
 
 
         mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -138,8 +185,25 @@ public class ChatActivity extends AppCompatActivity {
 
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-       RecyclerView.ItemDecoration mItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        RecyclerView.ItemDecoration mItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         mMessageRecyclerView.addItemDecoration(mItemDecoration);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
     }
 }

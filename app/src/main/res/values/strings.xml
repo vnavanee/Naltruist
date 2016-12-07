@@ -15,6 +15,10 @@
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="title_activity_room_list">Help Requests</string>
     <string name="title_activity_chat">Conversations</string>
+    <string name="address_found">AddressFound</string>
+    <string name="service_not_available">Reverse Geocoding not available</string>
+    <string name="invalid_lat_long_used">Location invalid</string>
+    <string name="no_address_found">No address found</string>
 
 
 </resources>
